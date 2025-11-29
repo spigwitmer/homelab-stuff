@@ -23,4 +23,4 @@ spec:
 
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: prometheus
+    namespace: longhorn-system
