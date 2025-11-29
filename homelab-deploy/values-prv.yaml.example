@@ -1,0 +1,7 @@
+homelabDeploy:
+  # get this from https://cloud.linode.com/profile/tokens
+  linodeApiToken: "mytoken"
+
+  # get this from http://pi.hole/ somewhere i can't remember exactly
+  # where sorry, also enable sudo for app tokens
+  piholeAppPassword: "mypassword"

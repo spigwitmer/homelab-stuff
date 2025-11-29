@@ -1,0 +1,16 @@
+# pre-declare certain namespaces for the sake of
+# secrets management
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: cert-manager
+  labels:
+    name: cert-manager
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: pihole-system
+  labels:
+    name: pihole-system
