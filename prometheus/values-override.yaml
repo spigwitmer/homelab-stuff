@@ -594,9 +594,10 @@ alertmanager:
   ingress:
     enabled: true
 
-    ingressClassName: ""
+    ingressClassName: "nginx"
 
-    annotations: {}
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
 
     labels: {}
 
@@ -608,8 +609,8 @@ alertmanager:
 
     ## Hosts must be provided if Ingress is enabled.
     ##
-    hosts: []
-      # - alertmanager.domain.com
+    hosts:
+      - alertmanager.home.camtap.io
 
     ## Paths to use for ingress rules - one path should match the alertmanagerSpec.routePrefix
     ##
@@ -623,7 +624,10 @@ alertmanager:
     ## TLS configuration for Alertmanager Ingress
     ## Secret must be manually created in the namespace
     ##
-    tls: []
+    tls:
+    - secretName: alertmanager-general-tls
+      hosts:
+        - grafana.home.camtap.io
     # - secretName: alertmanager-general-tls
     #   hosts:
     #   - alertmanager.example.com
