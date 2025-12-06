@@ -1,0 +1,27 @@
+[Unit]
+Description=Headscale (rootless Podman container)
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=headscale
+Image=headscale/headscale:0.27.2-rc.1
+Exec=serve
+
+PublishPort=8080:8080/tcp
+PublishPort=9090:9090/tcp
+
+# bind mounts in your home; inside the container, it's root writing to these
+Volume=%h/headscale/config:/etc/headscale:Z
+Volume=%h/headscale/lib:/var/lib/headscale:Z
+Volume=%h/headscale/run:/var/run/headscale:Z
+
+HealthCmd=headscale health
+
+[Service]
+Restart=always
+# avoid timeout while pulling image or starting DB, etc.
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,78 @@
+---
+# this has only been tested with an archlinux system. Run at your own
+# risk otherwise.
+- name: install headscale
+  hosts: headscale
+  remote_user: pat
+  vars:
+    headscale:
+      acme_email: idk # fill me in
+      hostname: headscale.camtap.io
+  pre_tasks:
+    - fail: yeah you do
+      when: headscale.acme_email == "idk"
+    - fail: you need systemd sorry goodbye
+      when: ansible_facts.service_mgr != "systemd"
+  tasks:
+    ## packages
+    - name: install nginx
+      package:
+        name: nginx
+        state: present
+      become: yes
+
+    - name: install podman
+      package:
+        name: podman
+        state: present
+      become: yes
+
+
+    ## headscale config
+    - name: create dirs
+      file:
+        path: /home/{{ ansible_user }}/headscale/{{ item }}
+        state: directory
+      with_items:
+        - config
+        - lib
+        - run
+
+    - name: headscale config
+      template:
+        src: headscale/config.yaml
+        dest: /home/{{ ansible_user }}/headscale/config/config.yaml
+
+    - name: install headscale .container systemd unit
+      copy:
+        src: headscale/headscale.container
+        dest: /home/{{ ansible_user }}/.config/containers/systemd/headscale.container
+
+
+    ## nginx config
+    - name: install nginx conf
+      copy:
+        src: headscale/headscale-acme-redirect.conf
+        dest: /etc/nginx/conf.d/headscale-acme-redirect.conf
+      become: yes
+
+
+    ## services
+    - name: start nginx
+      systemd_service:
+        name: nginx
+        enabled: true
+        state: started
+
+    # move to handler please
+    - name: enable lingering
+      shell: loginctl enable-linger {{ ansible_user }}
+      become: yes
+
+    - name: activate systemd service
+       systemd_service:
+        scope: user
+        name: headscale.service
+        state: started
+        enabled: true
+        daemon_reload: true
