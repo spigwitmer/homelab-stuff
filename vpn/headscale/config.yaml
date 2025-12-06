@@ -16,7 +16,7 @@ server_url: https://{{ headscale.hostname }}:8443
 #
 # For production:
 # listen_addr: 0.0.0.0:8080
-listen_addr: 0.0.0.0:8080
+listen_addr: 0.0.0.0:8443
 
 # Address to listen to /metrics and /debug, you may want
 # to keep this endpoint private to your internal network
@@ -200,7 +200,8 @@ database:
 # TLS for a domain with Let's Encrypt.
 #
 # URL to ACME directory
-acme_url: https://acme-v02.api.letsencrypt.org/directory
+#acme_url: https://acme-v02.api.letsencrypt.org/directory
+acme_url: https://acme-staging-v02.api.letsencrypt.org/directory
 
 # Email to register with ACME provider
 acme_email: "{{ headscale.acme_email }}"
@@ -228,7 +229,7 @@ tls_key_path: ""
 
 log:
   # Valid log levels: panic, fatal, error, warn, info, debug, trace
-  level: info
+  level: debug
 
   # Output formatting for logs: text or json
   format: text

@@ -8,7 +8,8 @@ ContainerName=headscale
 Image=headscale/headscale:0.27.2-rc.1
 Exec=serve
 
-PublishPort=8080:8080/tcp
+PublishPort=8443:8443/tcp
+PublishPort=127.0.0.1:8081:80/tcp
 PublishPort=127.0.0.1:9090:9090/tcp
 
 # bind mounts in your home; inside the container, it's root writing to these

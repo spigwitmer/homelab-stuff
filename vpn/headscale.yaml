@@ -4,15 +4,15 @@
 - name: Install headscale
   hosts: headscale
   remote_user: pat
-  vars:
-    headscale:
-      acme_email: idk # fill me in
-      hostname: headscale.camtap.io
   pre_tasks:
     - name: Email?
       ansible.builtin.fail:
-        msg: yeah you do
+        msg: distinct lack of email
       when: headscale.acme_email == "idk"
+    - name: Hostname?
+      ansible.builtin.fail:
+        msg: distinct lack of hostname
+      when: headscale.hostname is undefined or headscale.hostname == "idk"
     - name: Systemd?
       ansible.builtin.fail:
         msg: you need systemd sorry goodbye
