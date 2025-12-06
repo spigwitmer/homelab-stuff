@@ -1,7 +1,7 @@
 ---
 # this has only been tested with an archlinux system. Run at your own
 # risk otherwise.
-- name: install headscale
+- name: Install headscale
   hosts: headscale
   remote_user: pat
   vars:
@@ -9,68 +9,79 @@
       acme_email: idk # fill me in
       hostname: headscale.camtap.io
   pre_tasks:
-    - fail: yeah you do
+    - name: Email?
+      ansible.builtin.fail:
+        msg: yeah you do
       when: headscale.acme_email == "idk"
-    - fail: you need systemd sorry goodbye
+    - name: Systemd?
+      ansible.builtin.fail:
+        msg: you need systemd sorry goodbye
       when: ansible_facts.service_mgr != "systemd"
   tasks:
     ## packages
-    - name: install nginx
-      package:
+    - name: Install nginx
+      ansible.builtin.package:
         name: nginx
         state: present
-      become: yes
+      become: true
 
-    - name: install podman
-      package:
+    - name: Install podman
+      ansible.builtin.package:
         name: podman
         state: present
-      become: yes
+      become: true
 
 
     ## headscale config
-    - name: create dirs
-      file:
-        path: /home/{{ ansible_user }}/headscale/{{ item }}
+    - name: Create dirs
+      ansible.builtin.file:
+        path: '/home/{{ ansible_user }}/headscale/{{ item }}'
         state: directory
+        mode: '0755'
       with_items:
         - config
         - lib
         - run
 
-    - name: headscale config
-      template:
+    - name: Headscale config
+      ansible.builtin.template:
         src: headscale/config.yaml
-        dest: /home/{{ ansible_user }}/headscale/config/config.yaml
+        dest: '/home/{{ ansible_user }}/headscale/config/config.yaml'
+        mode: '0644'
 
-    - name: install headscale .container systemd unit
-      copy:
+    - name: Install headscale .container systemd unit
+      ansible.builtin.copy:
         src: headscale/headscale.container
-        dest: /home/{{ ansible_user }}/.config/containers/systemd/headscale.container
+        dest: '/home/{{ ansible_user }}/.config/containers/systemd/headscale.container'
+        mode: '0644'
 
 
     ## nginx config
-    - name: install nginx conf
-      copy:
+    - name: Install nginx conf
+      ansible.builtin.copy:
         src: headscale/headscale-acme-redirect.conf
         dest: /etc/nginx/conf.d/headscale-acme-redirect.conf
-      become: yes
+        mode: '0644'
+      become: true
 
 
     ## services
-    - name: start nginx
-      systemd_service:
+    - name: Start nginx
+      become: true
+      ansible.builtin.systemd_service:
         name: nginx
         enabled: true
         state: started
 
-    # move to handler please
-    - name: enable lingering
-      shell: loginctl enable-linger {{ ansible_user }}
-      become: yes
+    - name: Enable Linger
+      become: true
+      ansible.builtin.command: 'loginctl enable-linger {{ ansible_user }}'
+      args:
+        creates: '/var/lib/systemd/linger/{{ ansible_user }}'
 
-    - name: activate systemd service
-       systemd_service:
+    # move to handler please
+    - name: Activate systemd service
+      ansible.builtin.systemd_service:
         scope: user
         name: headscale.service
         state: started
