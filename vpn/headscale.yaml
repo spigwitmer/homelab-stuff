@@ -63,6 +63,17 @@
         dest: /etc/nginx/conf.d/headscale-acme-redirect.conf
         mode: '0644'
       become: true
+    - name: Create http static dir
+      ansible.builtin.file:
+        path: /srv/http
+        state: directory
+        mode: '0755'
+    - name: Install robots.txt
+      ansible.builtin.copy:
+        src: headscale/robots.txt
+        dest: /srv/http
+        mode: '0644'
+      become: true
 
 
     ## services
