@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ include "homelab-deploy.fullname" . }}-metallb
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    {{- include "homelab-deploy.labels" . | nindent 4 }}
+spec:
+  project: default
+
+  sources:
+    - repoURL: https://github.com/metallb/metallb.git
+      path: charts/metallb
+      targetRevision: v1.15.2
+      chart: metallb
+      helm:
+        releaseName: metallb
+        valueFiles:
+        - '$values/metallb/helm/values-override.yaml'
+    - repoURL: https://github.com/spigwitmer/homelab-stuff.git
+      targetRevision: HEAD
+      ref: values
+    - repoURL: https://github.com/spigwitmer/homelab-stuff.git
+      targetRevision: HEAD
+      path: metallb/static
+      directory:
+        include: '*.yaml'
+
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: metallb-system

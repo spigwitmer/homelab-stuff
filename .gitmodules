@@ -1,0 +1,4 @@
+[submodule "metallb/metallb"]
+	path = metallb/metallb
+	url = https://github.com/metallb/metallb.git
+	branch = v0.15.2
