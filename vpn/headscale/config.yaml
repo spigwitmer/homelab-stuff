@@ -200,8 +200,8 @@ database:
 # TLS for a domain with Let's Encrypt.
 #
 # URL to ACME directory
-#acme_url: https://acme-v02.api.letsencrypt.org/directory
-acme_url: https://acme-staging-v02.api.letsencrypt.org/directory
+acme_url: https://acme-v02.api.letsencrypt.org/directory
+#acme_url: https://acme-staging-v02.api.letsencrypt.org/directory
 
 # Email to register with ACME provider
 acme_email: "{{ headscale.acme_email }}"
