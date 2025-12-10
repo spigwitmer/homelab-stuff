@@ -12,7 +12,7 @@ spec:
 
   sources:
     - repoURL: https://github.com/metallb/metallb.git
-      targetRevision: v1.15.2
+      targetRevision: v0.15.2
       path: charts/metallb
       helm:
         releaseName: metallb
