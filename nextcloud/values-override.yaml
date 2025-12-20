@@ -544,10 +544,10 @@ redis:
     storageClass: ""
   master:
     persistence:
-      enabled: true
+      enabled: false
   replica:
     persistence:
-      enabled: true
+      enabled: false
 
 ##
 ## Collabora chart configuration
@@ -805,7 +805,8 @@ hpa:
   minPods: 1
   maxPods: 10
 
-nodeSelector: {}
+nodeSelector:
+  kubernetes.io/os: linux
 
 tolerations: []
 
