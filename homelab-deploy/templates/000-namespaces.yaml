@@ -14,3 +14,10 @@ metadata:
   name: pihole-system
   labels:
     name: pihole-system
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: nextcloud
+  labels:
+    name: nextcloud

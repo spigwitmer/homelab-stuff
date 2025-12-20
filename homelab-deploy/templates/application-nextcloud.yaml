@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ include "homelab-deploy.fullname" . }}-nextcloud
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    {{- include "homelab-deploy.labels" . | nindent 4 }}
+spec:
+  project: default
+
+  sources:
+    - repoURL: https://nextcloud.github.io/helm/
+      targetRevision: 8.7.0
+      helm:
+        releaseName: nextcloud
+        valueFiles:
+        - '$values/nextcloud/values-override.yaml'
+    - repoURL: https://github.com/spigwitmer/homelab-stuff.git
+      targetRevision: HEAD
+      ref: values
+
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: nextcloud
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true
