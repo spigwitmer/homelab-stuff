@@ -4670,10 +4670,10 @@ prometheus:
   additionalServiceMonitors:
     # scrape node-exporter on the SSH bastion
   - name: 'node-exporter-bastion'
-    jobLabel: 'node-exporter-bastion'
+    jobLabel: jobLabel
     selector:
       matchLabels:
-        name: bastion-ssh
+        app.kubernetes.io/name: bastion-ssh
     endpoints:
     - port: node-exporter
       path: /metrics
