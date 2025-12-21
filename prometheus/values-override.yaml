@@ -627,7 +627,7 @@ alertmanager:
     tls:
     - secretName: alertmanager-general-tls
       hosts:
-        - grafana.home.camtap.io
+        - alertmanager.home.camtap.io
     # - secretName: alertmanager-general-tls
     #   hosts:
     #   - alertmanager.example.com
@@ -4667,9 +4667,20 @@ prometheus:
   #      - nodes/proxy
   #    verbs: [ "get", "list", "watch" ]
 
-  additionalServiceMonitors: []
-  ## Name of the ServiceMonitor to create
-  ##
+  additionalServiceMonitors:
+    # scrape node-exporter on the SSH bastion
+  - name: 'node-exporter-bastion'
+    jobLabel: 'node-exporter-bastion'
+    selector:
+      matchLabels:
+        name: bastion-ssh
+    endpoints:
+    - port: node-exporter
+      path: /metrics
+    namespaceSelector:
+      matchNames:
+      - kubevirt
+
   # - name: ""
 
     ## Additional labels to set used for the ServiceMonitorSelector. Together with standard labels from
