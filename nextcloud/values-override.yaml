@@ -749,10 +749,10 @@ persistence:
     subPath:
     labels: {}
     annotations: {}
-    # storageClass: "-"
+    storageClass: "longhorn"
     # existingClaim:
     accessMode: ReadWriteOnce
-    size: 8Gi
+    size: 100Gi
 
 resources: {}
 # We usually recommend not to specify default resources and to leave this as a conscious
