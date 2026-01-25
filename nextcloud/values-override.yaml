@@ -398,7 +398,7 @@ nginx:
   #    value: ENV_VALUE
 
 internalDatabase:
-  enabled: true
+  enabled: false
   name: nextcloud
 
 ##
@@ -424,10 +424,10 @@ externalDatabase:
 
   ## Use a existing secret
   existingSecret:
-    enabled: false
-    # secretName: nameofsecret
+    enabled: true
+    secretName: nextcloud-creds
     usernameKey: db-username
-    passwordKey: db-password
+    passwordKey: postgresUserPassword
     # hostKey: db-hostname-or-ip
     # databaseKey: db-name
 
@@ -503,7 +503,7 @@ postgresql:
       enabled: true
       # Use an existing Persistent Volume Claim (must be created ahead of time)
       # existingClaim: ""
-      # storageClass: ""
+      storageClass: "longhorn"
 
 ##
 ## External Redis configuration
