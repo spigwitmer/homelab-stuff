@@ -10,6 +10,7 @@ homelabDeploy:
 
   # get these from hopefully your password manager of choice
   nextcloud:
+    db-username: 'nextcloud'
     nextcloud-username: 'idk'
     nextcloud-password: 'hunter2'
     postgresAdminPassword: 'hunter2'
