@@ -1,5 +1,8 @@
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
+spec:
+  ipAddressPools:
+    - homelab
 metadata:
   name: default
   namespace: metallb-system
