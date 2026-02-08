@@ -14,3 +14,10 @@ homelabDeploy:
     postgresUserPassword: 'hunter2'
     postgresReplicationPassword: 'hunter2'
     redis-password: 'hunter2'
+
+  # get these from https://my.contabo.com/api/details
+  contabo:
+    clientId: 'idk'
+    clientSecret: 'idk'
+    username: 'pat'
+    password: 'hunter2'

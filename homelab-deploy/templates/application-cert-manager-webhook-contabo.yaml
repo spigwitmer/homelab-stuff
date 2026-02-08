@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ include "homelab-deploy.fullname" . }}-contabo-webhook
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    {{- include "homelab-deploy.labels" . | nindent 4 }}
+spec:
+  project: default
+
+  sources:
+    - repoURL: https://github.com/spigwitmer/cert-manager-webhook-contabo.git
+      targetRevision: v0.1.0
+      path: deploy/helm/cert-manager-webhook-contabo
+      helm:
+        releaseName: contabo
+        valueFiles:
+        - '$values/cert-manager/contabo/values-override.yaml'
+    - repoURL: https://github.com/spigwitmer/homelab-stuff.git
+      targetRevision: HEAD
+      ref: values
+
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: cert-manager
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true
