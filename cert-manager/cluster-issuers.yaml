@@ -18,12 +18,11 @@ spec:
         - 'camtap.io'
       dns01:
         webhook:
-          solverName: linode
+          solverName: contabo
           groupName: home.camtap.io
           config:
-            apiKeySecretRef:
-              name: linode-credentials
-              key: token
+            credentialsSecretName: "contabo-credentials"
+            credentialsSecretNamespace: "cert-manager"
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -45,9 +44,8 @@ spec:
         - 'camtap.io'
       dns01:
         webhook:
-          solverName: linode
+          solverName: contabo
           groupName: home.camtap.io
           config:
-            apiKeySecretRef:
-              name: linode-credentials
-              key: token
+            credentialsSecretName: "contabo-credentials"
+            credentialsSecretNamespace: "cert-manager"
