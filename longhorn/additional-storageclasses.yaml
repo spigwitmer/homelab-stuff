@@ -5,7 +5,7 @@ metadata:
   name: longhorn-wffc
 parameters:
   backupTargetName: default
-  dataEngine: v2
+  dataEngine: v1
   dataLocality: disabled
   disableRevisionCounter: "true"
   fromBackup: ""
