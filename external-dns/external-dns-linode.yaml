@@ -32,7 +32,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: external-dns
-  namespace: cert-manager
+  namespace: pihole-system
 ---
 apiVersion: apps/v1
 kind: Deployment
