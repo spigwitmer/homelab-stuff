@@ -37,7 +37,7 @@ crds:
   ## It deploys a corresponding clusterrole, clusterrolebinding and serviceaccount to apply the CRDs.
   ## This feature is in preview, off by default and may change in the future.
   upgradeJob:
-    enabled: false
+    enabled: true
     forceConflicts: false
     image:
       busybox:
