@@ -13,7 +13,7 @@ spec:
   sources:
     - repoURL: oci://quay.io/jetstack/charts/cert-manager
       path: .
-      targetRevision: v1.19.1
+      targetRevision: v1.20.2
       helm:
         releaseName: cert-manager
         valueFiles:
