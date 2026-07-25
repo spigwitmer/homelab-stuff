@@ -21,3 +21,14 @@ homelabDeploy:
     clientSecret: 'idk'
     username: 'pat'
     password: 'hunter2'
+
+  # Local security stack secrets:
+  # Frigate, Home Assistant, Mosquitto (mqtt)
+  security:
+    mqtt:
+      # Single local MQTT user shared between Frigate publisher and HA subscriber
+      username: 'frigate'
+      password: 'hunter2'
+    frigate:
+      # Used for HTTP basic auth on the Frigate UI/API
+      adminPassword: 'hunter2'

@@ -1,0 +1,49 @@
+# Mosquitto values for k8s-at-home/mosquitto
+# Single local user; password comes from `mqtt-credentials` Secret.
+# Used by Frigate (publisher) and Home Assistant (subscriber).
+
+image:
+  repository: eclipse-mosquitto
+  tag: 2.0.20
+  pullPolicy: IfNotPresent
+
+# Plain MQTT inside the cluster; TLS would only matter if we exposed this port
+# to anything beyond the security namespace. Future: use internal cert if needed.
+service:
+  enabled: true
+  type: ClusterIP
+  ports:
+    mqtt: 1883
+
+# Tiny deployment; ~50MB RSS is plenty for two publishers + one subscriber.
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
+
+# Soft affinity for `charmander`; cubone is the fallback. See PLAN-SECURITY.md.
+nodeSelector: {}
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values: ["charmander"]
+
+# Existing secret in the security namespace supplies the broker password file.
+# The k8s-at-home chart generates a mosquitto.conf and mounts it; we point
+# password_file at our Secret and let the chart handle appending users.
+auth:
+  enabled: true
+  passwordFromExistingSecret:
+    name: mqtt-credentials
+    key: MQTT_PASSWORD
+
+# Persistence for mosquitto data (no persistence required for our use case).
+persistence:
+  enabled: false

@@ -1,0 +1,90 @@
+# Frigate values for k8s-at-home/frigate
+# Two 1080p cameras, CPU detector, MQTT event publishing to mosquitto.
+# Recordings persisted to Longhorn (mirrored across charmander + cubone).
+# Exposed via existing nginx-ingress controller at https://frigate.home.camtap.io
+
+image:
+  repository: ghcr.io/blakeblackshear/frigate
+  # Pin to a stable 0.16 release. Bump with care; Frigate config schema moves.
+  tag: 0.16.0
+  pullPolicy: IfNotPresent
+
+# k8s-at-home/frigate manages the Frigate ConfigMap from `frigate.config`
+# (a map of filenames to multi-line strings).
+frigate:
+  # CPU detector — R7-6800H is more than enough for two 1080p sub-streams.
+  detectors:
+    - type: cpu
+  config:
+    config.yml: |
+{{ .Files.Get "frigate-config.yaml" | indent 6 }}
+
+# Recordings on Longhorn. WaitForFirstConsumer + 2 replicas means data follows
+# the pod — survives charmander dying by failing over to cubone.
+persistence:
+  recordings:
+    enabled: true
+    size: 250Gi
+    storageClass: longhorn-wffc
+    accessMode: ReadWriteOnce
+    existingClaim: ""
+  cache:
+    enabled: true
+    size: 10Gi
+    storageClass: longhorn-wffc
+    accessMode: ReadWriteOnce
+  config:
+    # frigate-config.yaml holds the full frigate.yml; the chart maps
+    # `frigate.config.config.yml` to /config/config.yml in the pod.
+    enabled: false
+
+# Internal port; ingress fronts it.
+service:
+  type: ClusterIP
+  port: 5000
+  annotations: {}
+
+# nginx-ingress fronts the service. cert-manager auto-issues; external-dns
+# auto-publishes to Contabo + Pi-hole via the existing controller.
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: frigate.home.camtap.io
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: frigate-tls
+      hosts:
+        - frigate.home.camtap.io
+
+# Existing secret in the security namespace supplies the admin password.
+auth:
+  enabled: true
+  secret:
+    name: frigate-admin
+    key: FRIGATE_ADMIN_PASSWORD
+
+# Resources: 2 cameras + CPU detection + decoding. Modest requests, soft limits.
+resources:
+  requests:
+    cpu: "1"
+    memory: 1Gi
+  limits:
+    memory: 4Gi
+
+# Soft affinity for `charmander`; cubone is the fallback.
+# Avoids coincidental placement on a power-hungry Xeon.
+nodeSelector: {}
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values: ["charmander"]

@@ -21,3 +21,11 @@ metadata:
   name: nextcloud
   labels:
     name: nextcloud
+---
+# Security stack: Frigate, Home Assistant, Mosquitto
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: security
+  labels:
+    name: security

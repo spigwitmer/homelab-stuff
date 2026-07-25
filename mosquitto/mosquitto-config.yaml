@@ -1,0 +1,24 @@
+# Mosquitto runtime configuration. Mounted at /mosquitto/config/mosquitto.conf
+# by the k8s-at-home/mosquitto chart. Passwords are loaded from /etc/mosquitto/secrets/passwords.
+
+persistence false
+persistence_file mosquitto.db
+
+# Plain MQTT over TCP. No external listeners; only the cluster-internal Service is reachable.
+listener 1883
+protocol mqtt
+allow_anonymous false
+
+# Generated credentials from k8s-at-home chart
+password_file /etc/mosquitto/secrets/passwords
+
+# Reasonable defaults for two publishers / one subscriber
+max_connections 100
+max_queued_messages 1000
+log_dest stdout
+log_type error
+log_type warning
+log_type notice
+log_type information
+connection_messages true
+log_timestamp true

@@ -1,0 +1,77 @@
+# Home Assistant values for k8s-at-home/home-assistant
+# Companion app primary mobile UI; embeds the Frigate-HASS card.
+# Reachable on the tailnet at https://ha.home.camtap.io
+
+image:
+  repository: homeassistant/home-assistant
+  # Pin to a known stable release; bump with care.
+  tag: "2025.1.3"
+  pullPolicy: IfNotPresent
+
+# home-assistant chart maps `homeassistant.config` to /config/* in the pod.
+# Anything declared here is appended on first run.
+homeassistant:
+  # If true, this REPLACES /config/configuration.yaml on every start — the
+  # default. We want to drop our `configuration.yaml` and have it persist.
+  freshStart: false
+  config:
+    configuration.yaml: |
+{{ .Files.Get "home-assistant-config.yaml" | indent 6 }}
+  # tz for local time; adjust to your location.
+  timezone: America/Los_Angeles
+  http:
+    # Trust the ingress' forwarded headers so HA shows the external URL.
+    use_x_forwarded_for: true
+    trusted_proxies:
+      - 192.168.4.0/24
+    ip_ban_enabled: true
+
+# Persistent configuration. /config retains state, integrations, history etc.
+persistence:
+  config:
+    enabled: true
+    size: 5Gi
+    storageClass: longhorn-wffc
+    accessMode: ReadWriteOnce
+
+# Internal port; ingress fronts it.
+service:
+  type: ClusterIP
+  port: 8123
+  annotations: {}
+
+# nginx-ingress fronts the service. cert-manager auto-issues.
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: ha.home.camtap.io
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: ha-tls
+      hosts:
+        - ha.home.camtap.io
+
+# Modest resources; HA core is light.
+resources:
+  requests:
+    cpu: "100m"
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+# Soft affinity for charmander; cubone is the fallback.
+nodeSelector: {}
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values: ["charmander"]

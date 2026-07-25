@@ -1,0 +1,41 @@
+# Home Assistant configuration.yaml
+# This file is mounted at /config/configuration.yaml in the pod.
+# HACS + integrations will extend it once HA is reachable; edit through the UI
+# once onboarded.
+
+# Default config directory; integrations / entities live alongside.
+default_config:
+
+# Log config on disk via MQTT push for HA events.
+# `entity_id` becomes switchable from the Companion app.
+mqtt:
+  broker: mosquitto.security.svc.cluster.local
+  port: 1883
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  discovery: true
+  # All Frigate events will arrive as `frigate/<event_type>/<camera>`.
+  # The Frigate-HASS integration (added via HACS) bridges them into HA entities.
+  birth_message:
+    topic: ha/status
+    payload: online
+    retain: true
+
+# Native iOS / Android push via the Companion app.
+mobile_app:
+
+# Trust ingress-nginx so HA shows the right client URL in error pages.
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 192.168.4.0/24
+  ip_ban_enabled: true
+
+# Snippet from homelab-stuff/pihole — Pi-hole handles local DNS, including
+# for HA's discovered devices. Replace with your actual Pi-hole address.
+# dns:
+#   - 192.168.4.101
+
+# Permit connections only over Tailscale or LAN. Adjust after testing.
+# auth_providers:
+#   - type: homeassistant
