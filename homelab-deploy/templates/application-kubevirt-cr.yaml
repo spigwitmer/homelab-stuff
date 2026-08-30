@@ -17,7 +17,6 @@ spec:
     targetRevision: HEAD
     path: kubevirt
     directory:
-      recurse: false
       include: '{kubevirt-cr.yaml}'
 
   destination:

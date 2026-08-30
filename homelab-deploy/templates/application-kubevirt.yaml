@@ -15,7 +15,6 @@ spec:
     targetRevision: HEAD
     path: kubevirt/upstream
     directory:
-      recurse: false
       include: '{kubevirt-operator.yaml}'
 
   destination:
