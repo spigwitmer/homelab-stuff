@@ -34,9 +34,11 @@ spec:
     # equivalent and the bump procedure.
     - resourceName: virt-api
       resourceType: Deployment
+      type: strategic
       patch: &worker-affinity-patch '{"spec":{"template":{"spec":{"affinity":{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"node-role.kubernetes.io/worker","operator":"Exists"},{"key":"node-role.kubernetes.io/control-plane","operator":"DoesNotExist"},{"key":"node-role.kubernetes.io/master","operator":"DoesNotExist"}]}]} }}}}}}'
     - resourceName: virt-controller
       resourceType: Deployment
+      type: strategic
       patch: *worker-affinity-patch
   imagePullPolicy: IfNotPresent
   workloadUpdateStrategy: {}
