@@ -1,4 +1,22 @@
 ---
+# homelab-stuff patch: upstream kubevirt v1.7.0 operator.yaml, with the
+# virt-operator Deployment's nodeAffinity overridden to require workers
+# (charmander preferred, cubone fallback) instead of control-plane/master.
+#
+# Without this, virt-operator/virt-api/virt-controller all collapse onto
+# k8s-master-1 (the Raspberry Pi) and Cilium endpoint creation there is
+# currently rate-limited (HTTP 429), which is why they're stuck in
+# ContainerCreating. virt-handler is unaffected (DaemonSet, already on
+# workers).
+#
+# virt-api and virt-controller are not in this file (operator creates them
+# at runtime from the KubeVirt CR) — see kubevirt-cr.yaml's
+# spec.customizeComponents for those.
+#
+# Bump procedure: download the new release's kubevirt-operator.yaml from
+# https://github.com/kubevirt/kubevirt/releases, replace this file, then
+# re-apply the affinity and toleration edits below. Bump targetRevision in
+# application-kubevirt.yaml accordingly.
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -8238,20 +8256,15 @@ spec:
     spec:
       affinity:
         nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - preference:
-              matchExpressions:
-              - key: node-role.kubernetes.io/worker
-                operator: DoesNotExist
-            weight: 100
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
+              - key: node-role.kubernetes.io/worker
+                operator: Exists
               - key: node-role.kubernetes.io/control-plane
-                operator: Exists
-            - matchExpressions:
+                operator: DoesNotExist
               - key: node-role.kubernetes.io/master
-                operator: Exists
+                operator: DoesNotExist
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - podAffinityTerm:
@@ -8332,12 +8345,6 @@ spec:
       serviceAccountName: kubevirt-operator
       tolerations:
       - key: CriticalAddonsOnly
-        operator: Exists
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/control-plane
-        operator: Exists
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
         operator: Exists
       volumes:
       - name: kubevirt-operator-certs

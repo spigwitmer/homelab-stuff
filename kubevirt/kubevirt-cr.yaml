@@ -22,6 +22,21 @@ spec:
         virtLauncher: 1
         virtOperator: 1
     imagePullPolicy: IfNotPresent
-  customizeComponents: {}
+  customizeComponents:
+    patches:
+    # homelab-stuff patch: override the upstream control-plane/master
+    # affinity on virt-api and virt-controller (which the operator creates
+    # from this CR at runtime, not from kubevirt-operator.yaml). Requires
+    # the worker role label and explicitly excludes control-plane and
+    # master role labels, so pods schedule on any worker and never on the
+    # Raspberry Pi master. See the comment header in
+    # kubevirt/upstream/kubevirt-operator.yaml for the virt-operator
+    # equivalent and the bump procedure.
+    - resourceName: virt-api
+      resourceType: Deployment
+      patch: &worker-affinity-patch '{"spec":{"template":{"spec":{"affinity":{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"node-role.kubernetes.io/worker","operator":"Exists"},{"key":"node-role.kubernetes.io/control-plane","operator":"DoesNotExist"},{"key":"node-role.kubernetes.io/master","operator":"DoesNotExist"}]}]} }}}}}}'
+    - resourceName: virt-controller
+      resourceType: Deployment
+      patch: *worker-affinity-patch
   imagePullPolicy: IfNotPresent
   workloadUpdateStrategy: {}
