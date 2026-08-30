@@ -1,13 +1,13 @@
 ---
-# homelab-stuff patch: upstream kubevirt v1.7.0 operator.yaml, with the
+# homelab-stuff patch: upstream kubevirt v1.7.4 operator.yaml, with the
 # virt-operator Deployment's nodeAffinity overridden to require workers
-# (charmander preferred, cubone fallback) instead of control-plane/master.
+# (any node with the worker role label, never on masters/control-plane)
+# instead of the upstream control-plane/master rule.
 #
 # Without this, virt-operator/virt-api/virt-controller all collapse onto
-# k8s-master-1 (the Raspberry Pi) and Cilium endpoint creation there is
-# currently rate-limited (HTTP 429), which is why they're stuck in
-# ContainerCreating. virt-handler is unaffected (DaemonSet, already on
-# workers).
+# k8s-master-1 (the Raspberry Pi). Cilium endpoint creation there has
+# rate-limit issues, leaving pods stuck in ContainerCreating. virt-handler
+# is unaffected (DaemonSet, already on workers).
 #
 # virt-api and virt-controller are not in this file (operator creates them
 # at runtime from the KubeVirt CR) — see kubevirt-cr.yaml's
@@ -15,8 +15,8 @@
 #
 # Bump procedure: download the new release's kubevirt-operator.yaml from
 # https://github.com/kubevirt/kubevirt/releases, replace this file, then
-# re-apply the affinity and toleration edits below. Bump targetRevision in
-# application-kubevirt.yaml accordingly.
+# re-apply the affinity and toleration edits below. Update the kubevirt
+# version comment here and ensure bootstrap Ansible matches the image tag.
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -7636,6 +7636,7 @@ rules:
   - virtualmachineinstances
   verbs:
   - update
+  - patch
   - list
   - watch
 - apiGroups:
@@ -7686,6 +7687,12 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - apps
+  resources:
+  - controllerrevisions
+  verbs:
+  - get
 - apiGroups:
   - export.kubevirt.io
   resources:
@@ -8286,14 +8293,14 @@ spec:
         - virt-operator
         env:
         - name: VIRT_OPERATOR_IMAGE
-          value: quay.io/kubevirt/virt-operator:v1.7.0
+          value: quay.io/kubevirt/virt-operator:v1.7.4
         - name: WATCH_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.annotations['olm.targetNamespaces']
         - name: KUBEVIRT_VERSION
-          value: v1.7.0
-        image: quay.io/kubevirt/virt-operator:v1.7.0
+          value: v1.7.4
+        image: quay.io/kubevirt/virt-operator:v1.7.4
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
