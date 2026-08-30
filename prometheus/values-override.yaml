@@ -4681,6 +4681,19 @@ prometheus:
       matchNames:
       - kubevirt
 
+    # scrape node-exporter on the opencode VM
+  - name: 'node-exporter-opencode'
+    jobLabel: jobLabel
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: opencode
+    endpoints:
+    - port: node-exporter
+      path: /metrics
+    namespaceSelector:
+      matchNames:
+      - kubevirt
+
   # - name: ""
 
     ## Additional labels to set used for the ServiceMonitorSelector. Together with standard labels from
