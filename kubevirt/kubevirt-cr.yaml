@@ -1,0 +1,27 @@
+apiVersion: kubevirt.io/v1
+kind: KubeVirt
+metadata:
+  name: kubevirt
+  namespace: kubevirt
+  labels:
+    app.kubernetes.io/name: kubevirt
+    app.kubernetes.io/part-of: homelab
+spec:
+  certificateRotateStrategy: {}
+  configuration:
+    architectureConfiguration:
+      defaultArchitecture: amd64
+    developerConfiguration:
+      featureGates:
+      - MultiArchitecture
+      - ExpandDisks
+      logVerbosity:
+        virtAPI: 1
+        virtController: 1
+        virtHandler: 1
+        virtLauncher: 1
+        virtOperator: 1
+    imagePullPolicy: IfNotPresent
+  customizeComponents: {}
+  imagePullPolicy: IfNotPresent
+  workloadUpdateStrategy: {}

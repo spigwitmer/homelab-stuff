@@ -1,12 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ include "homelab-deploy.fullname" . }}-opencode
+  name: {{ include "homelab-deploy.fullname" . }}-kubevirt
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
-  annotations:
-    argocd.argoproj.io/depends-on: '[{{ include "homelab-deploy.fullname" . }}-kubevirt-cr]'
   labels:
     {{- include "homelab-deploy.labels" . | nindent 4 }}
 spec:
@@ -15,10 +13,10 @@ spec:
   source:
     repoURL: https://github.com/spigwitmer/homelab-stuff.git
     targetRevision: HEAD
-    path: kubevirt
+    path: kubevirt/upstream
     directory:
       recurse: false
-      include: '{opencode-*.yaml}'
+      include: '{kubevirt-operator.yaml}'
 
   destination:
     server: "https://kubernetes.default.svc"
@@ -29,4 +27,6 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
+      - CreateNamespace=false
+      - ApplyOutOfSyncOnly=true
       - ServerSideApply=true
